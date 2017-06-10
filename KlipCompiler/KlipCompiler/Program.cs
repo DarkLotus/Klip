@@ -14,7 +14,11 @@ namespace KlipCompiler
         static void Main(string[] args)
         {
             imports = new List<string>();
-
+            if(args.Length == 0)
+            {
+                Console.WriteLine("Run with scriptname and optional -msil parameter.");
+                return;
+            }
             StreamReader sr = new StreamReader(args[0]);
             string code = sr.ReadToEnd();
 
@@ -47,6 +51,16 @@ namespace KlipCompiler
 
             Parser parser = new Parser(tokenlist);
             List<Stmt> tree = parser.GetTree();
+            if(args.Length > 1)
+            {
+                var msil = args[1] == "-msil";
+                if(msil)
+                {
+                    //no handling of imports yet
+                    var comp = new MSILCompiler(tree, Path.GetFileNameWithoutExtension(args[0]));
+                    Console.WriteLine("Executable saved to: " + Path.GetFileNameWithoutExtension(args[0]) + ".exe");
+                }
+            }
 
             Compiler compiler = new Compiler(tree);
             string c = compiler.GetCode();
